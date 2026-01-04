@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * ConfigReader updated to handle application.properties, application-qa.properties,
- * and application-staging.properties.
+ * Enhanced ConfigReader supporting multiple environments (qa, staging, prod).
+ * Priority: System Properties > Env Properties > Base Properties.
  */
 public class ConfigReader {
 
@@ -16,12 +16,9 @@ public class ConfigReader {
 
     private ConfigReader() {
         properties = new Properties();
-        loadAllProperties();
+        loadHierarchicalProperties();
     }
 
-    /**
-     * Singleton instance provider.
-     */
     public static ConfigReader getInstance() {
         if (instance == null) {
             synchronized (ConfigReader.class) {
@@ -33,37 +30,33 @@ public class ConfigReader {
         return instance;
     }
 
-    /**
-     * Loads base properties first, then overlays environment-specific properties.
-     */
-    private void loadAllProperties() {
-        // 1. Load the default application.properties first
+    private void loadHierarchicalProperties() {
+        // 1. Load the common base properties
         loadFromFile(BASE_PATH + "application.properties");
 
-        // 2. Identify the environment (default to 'qa' if not provided via -Denv)
+        // 2. Determine environment (default to 'qa' if not provided)
+        // Usage: mvn test -Denv=staging
         String env = System.getProperty("env", "qa").toLowerCase();
 
-        // 3. Construct the specific filename (e.g., application-qa.properties)
-        String envFileName = "application-" + env + ".properties";
+        // 3. Load Environment-Specific properties (application-staging.properties, etc.)
+        String envFilePath = BASE_PATH + "application-" + env + ".properties";
+        loadFromFile(envFilePath);
 
-        // 4. Load the env file (this will override any duplicate keys in base properties)
-        loadFromFile(BASE_PATH + envFileName);
+        // 4. Final Override with System properties (for Jenkins/CI/CD secret injection)
+        properties.putAll(System.getProperties());
     }
 
     private void loadFromFile(String filePath) {
         try (FileInputStream fis = new FileInputStream(filePath)) {
             properties.load(fis);
-            System.out.println("Loaded properties from: " + filePath);
+            System.out.println("[CONFIG] Successfully loaded: " + filePath);
         } catch (IOException e) {
-            // We only log a warning because the specific env file might be optional
-            System.out.println("Warning: Could not find or load " + filePath);
+            System.out.println("[CONFIG] Note: Optional config file not found: " + filePath);
         }
     }
 
-    /**
-     * Gets value by key from the loaded properties.
-     */
     public String getProperty(String key) {
-        return properties.getProperty(key);
+        String value = properties.getProperty(key);
+        return (value != null) ? value.trim() : null;
     }
 }
