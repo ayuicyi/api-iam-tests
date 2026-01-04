@@ -1,0 +1,1 @@
+username,role,expectedStatus admin_user_01,ADMIN,201 dev_tester_02,DEVELOPER,201 invalid_user,UNKNOWN,400 readonly_guest,GUEST,201
