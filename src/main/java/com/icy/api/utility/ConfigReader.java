@@ -5,33 +5,65 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * This is the "Senior" version.
- * It is robust (has error handling) but stays focused.
+ * ConfigReader updated to handle application.properties, application-qa.properties,
+ * and application-staging.properties.
  */
 public class ConfigReader {
-    private static Properties properties = new Properties();
 
-    static {
-        try {
-            // First, load the main config to see which env we are in
-            FileInputStream mainFile = new FileInputStream("src/main/resources/application.properties");
-            properties.load(mainFile);
+    private static ConfigReader instance;
+    private final Properties properties;
+    private static final String BASE_PATH = "src/test/resources/";
 
-            String env = properties.getProperty("env", "qa"); // default to qa if not found
+    private ConfigReader() {
+        properties = new Properties();
+        loadAllProperties();
+    }
 
-            // Then, load the environment specific file
-            String envPath = "src/main/resources/application-" + env + ".properties";
-            FileInputStream envFile = new FileInputStream(envPath);
-            properties.load(envFile);
+    /**
+     * Singleton instance provider.
+     */
+    public static ConfigReader getInstance() {
+        if (instance == null) {
+            synchronized (ConfigReader.class) {
+                if (instance == null) {
+                    instance = new ConfigReader();
+                }
+            }
+        }
+        return instance;
+    }
 
-            System.out.println("Successfully loaded configuration for environment: " + env);
+    /**
+     * Loads base properties first, then overlays environment-specific properties.
+     */
+    private void loadAllProperties() {
+        // 1. Load the default application.properties first
+        loadFromFile(BASE_PATH + "application.properties");
+
+        // 2. Identify the environment (default to 'qa' if not provided via -Denv)
+        String env = System.getProperty("env", "qa").toLowerCase();
+
+        // 3. Construct the specific filename (e.g., application-qa.properties)
+        String envFileName = "application-" + env + ".properties";
+
+        // 4. Load the env file (this will override any duplicate keys in base properties)
+        loadFromFile(BASE_PATH + envFileName);
+    }
+
+    private void loadFromFile(String filePath) {
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            properties.load(fis);
+            System.out.println("Loaded properties from: " + filePath);
         } catch (IOException e) {
-            System.err.println("FATAL: Could not load properties. Check your src/main/resources folder.");
-            e.printStackTrace();
+            // We only log a warning because the specific env file might be optional
+            System.out.println("Warning: Could not find or load " + filePath);
         }
     }
 
-    public static String getProperty(String key) {
+    /**
+     * Gets value by key from the loaded properties.
+     */
+    public String getProperty(String key) {
         return properties.getProperty(key);
     }
 }
