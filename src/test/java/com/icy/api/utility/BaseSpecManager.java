@@ -10,7 +10,7 @@ import io.restassured.specification.RequestSpecification;
 public class BaseSpecManager {
 
     // Base URI could also be loaded from a properties file
-    private static final String BASE_URI = "https://api.company.com/iam";
+    private static final String BASE_URI = "https://reqres.in/api";
 
     /**
      * Returns a RequestSpecification for IAM-related API calls.

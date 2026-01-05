@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  'parallel="methods"' tells TestNG to run test methods in parallel.
+  'thread-count="5"' defines the maximum number of threads in the pool.
+  'data-provider-thread-count="3"' specifically limits how many DataProvider
+  rows run at once.
+-->
+<suite name="API Regression Suite"
+       parallel="methods"
+       thread-count="5"
+       data-provider-thread-count="3">
+
+    <test name="Login Scenarios">
+        <classes>
+            <!-- Reference your test class here using the full package path -->
+            <class name="com.icy.api.tests.UserLoginTest" />
+        </classes>
+    </test>
+
+</suite>

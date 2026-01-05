@@ -1,1 +1,4 @@
-username,role,expectedStatus admin_user_01,ADMIN,201 dev_tester_02,DEVELOPER,201 invalid_user,UNKNOWN,400 readonly_guest,GUEST,201
+username,password,role,expectedStatus
+eve.holt@reqres.in,cityslicka,ADMIN,200
+peter@klaven,testpass,USER,400
+invalid@user.com,password123,GUEST,400

@@ -1,6 +1,5 @@
 package com.icy.api.tests;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.icy.api.utility.BaseSpecManager;
 import org.testng.annotations.Test;
 import static io.restassured.RestAssured.given;

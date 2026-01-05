@@ -13,7 +13,7 @@ import java.util.List;
 public class IamDataParser {
 
     /**
-     * Model representing a single row in the iam.csv file.
+     * Model representing a single row in the iamREAL.csv file.
      */
     public static class IamTestCase {
         private final String username;
@@ -75,7 +75,7 @@ public class IamDataParser {
 
     public static void main(String[] args) {
         // Example execution to verify data loading
-        String csvPath = "src/test/resources/data/iam.csv";
+        String csvPath = "src/test/resources/data/iamREAL.csv";
         List<IamTestCase> data = loadTestData(csvPath);
 
         System.out.println("Successfully loaded " + data.size() + " test scenarios:");
